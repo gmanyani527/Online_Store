@@ -3,6 +3,7 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
+
 import java.util.*;
 
 
@@ -12,7 +13,7 @@ public class OnlineStore {
 
 
     public static void main(String[] args) {
-        loadProduct(FILE_NAME);
+
         Scanner scan = new Scanner(System.in);
         boolean stillDeciding = true;
 
@@ -36,7 +37,7 @@ public class OnlineStore {
             switch (userInput) {
                 case 1: // Show Available Books
                     stillDeciding = true;
-
+                    loadProduct(FILE_NAME);
                     for (Product product : products) {
                         if (product != null) {
                             System.out.println(product);
@@ -49,32 +50,7 @@ public class OnlineStore {
                         String input2 = scan.nextLine();
 
                         if (input2.equalsIgnoreCase("yes")) {
-                            System.out.println("Enter a name: ");
-                            String input3 = scan.nextLine();
-                            System.out.println("Enter the ID number: ");
-                            String input4 = scan.nextLine();
-                            scan.nextLine();
-
-                            for (Product product : products) {
-                                if (input4 == product.getId()) {
-                                    // product.setCheckedOut(true);
-                                    // product.checkedOut(input3);
-                                    System.out.println("Success! Item moved to cart!");
-                                    System.out.println();
-                                    System.out.println("Would you like buy something else ");
-                                    String input5 = scan.nextLine();
-                                    if (input5.equalsIgnoreCase("no")) {
-                                        stillDeciding = false;
-                                    }
-                                    found = true;
-                                    break;
-                                }
-
-                            }
-                            if (!found) {
-                                System.out.println("This item is not in our inventory");
-
-                            }
+                            addToCart();
                         } else {
                             stillDeciding = false;
                         }
@@ -83,46 +59,41 @@ public class OnlineStore {
                     break;
                 case 2:// Show Checked Out Books
                     stillDeciding = true;
-                    for (Product product : products) {
-                        //   if (product.isCheckedOut()) {
-                        System.out.println(product.getId() + " " + product.getProductName() + product.getPrice());
-                        //  }
-                    }
+                    loadProduct(FILE_NAME);
 
                     while (stillDeciding) {
+                        for (Product product : products) {
+                            //   if (product.isCheckedOut()) {
+                            System.out.println(product);
+                            //  }
+                        }
                         System.out.println();
                         System.out.println("Would you like to add to cart? \n (Select C or X)");
                         String input6 = scan.nextLine();
 
                         if (input6.equalsIgnoreCase("x")) {
                             stillDeciding = false;
-                        }
-                        if (input6.equalsIgnoreCase("c")) {
-                            System.out.println("Enter book ID to be checked in: ");
+                        } else if (input6.equalsIgnoreCase("c")) {
+                            System.out.println("Enter product ID to be added to the cart:");
+                            String input7 = scan.nextLine();
 
-                            boolean found = false;
-                            int input7 = scan.nextInt();
-                            scan.nextLine();
-                            for (Product product : products) {
-                                if (input7 == book.getId() && book.isCheckedOut()) {
-                                    book.checkIn();
-                                    System.out.println("Book has been checked in!");
-                                    System.out.println();
-                                    System.out.println("Do you have another book to check in? ");
-                                    String input8 = scan.nextLine();
-                                    if (!input8.equalsIgnoreCase("yes")) {
-                                        stillDeciding = false;
-                                    }
-                                    found = true;
-                                    break;
-                                }
+
+                        boolean found = false;
+                        for (Product product : products) {
+                            if (product.getId().equalsIgnoreCase(input7)) {
+                                System.out.println("Product found and added to cart!");
+                                // You can write this to a cart.csv file if needed
+                                found = true;
+                                break;
                             }
-                            if (!found) {
-                                System.out.println("This book was not checked out or does not exist");
-                            }
-
-
                         }
+
+                        if (!found) {
+                            System.out.println("Product ID not found in inventory.");
+                        }
+                    } else {
+                    System.out.println("Invalid input. Please select C or X.");
+                }
                     }
                     System.out.println();
                     System.out.println("You have returned to the homepage! ");
@@ -130,7 +101,7 @@ public class OnlineStore {
                     break;
 
 
-                case 4: // Exit
+                case 3: // Exit
                     System.out.println();
                     System.out.println("See ya next Time!");
                     on = false;
@@ -144,6 +115,7 @@ public class OnlineStore {
         }
     }
         public static ArrayList<Product> loadProduct(String fileName){
+            products.clear(); // Prevent reloading duplicates
 
             String line;
             try {
@@ -153,13 +125,13 @@ public class OnlineStore {
                         continue; // skip empty lines
                     }
                     String[] parts = line.split("\\|");
-                    if (parts.length != 5) {
+                    if (parts.length != 3) {
                         System.out.println("Skipping bad line: " + line);
                         continue; // skip invalid lines
                     }
-                    String id = parts[1];
-                    String productName = parts[2];
-                    double price = Double.parseDouble(parts[3]);
+                    String id = parts[0];
+                    String productName = parts[1];
+                    double price = Double.parseDouble(parts[2]);
                     products.add(new Product(id, productName, price));
                 }
             } catch (Exception e) {
@@ -169,6 +141,45 @@ public class OnlineStore {
             return products;
         }
 
+    private static void addToCart() {
+        Scanner scanner = new Scanner(System.in);
+        boolean rightAnswer = true;
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("products.csv", true));
+            // Collect date, time, description, vendor, and amount from user
+            System.out.println("Enter the product Id:  ");
+            String inputID = scanner.nextLine();
+            System.out.println(inputID);
 
+            System.out.println("Enter the product name: ");
+            String inputName = scanner.nextLine();
+            System.out.println(inputName);
+
+            System.out.println("Enter the price of the product: ");
+            double inputPrice = scanner.nextDouble();
+            scanner.nextLine();
+            System.out.println(inputPrice);
+            // Create and store transaction
+            boolean found = false;
+            for (Product product : products) {
+                if (inputID.equalsIgnoreCase(product.getId())) {
+                    System.out.println("This product already exists in inventory. Not adding again.");
+                    return;
+                }
+            }
+            if (!found) {
+                System.out.println("This item is not in our inventory");
+                Product product = new Product(inputID, inputName, inputPrice );
+                products.add(product);
+
+                bufferedWriter.write(product.toString());
+                bufferedWriter.newLine();
+                System.out.println("Product successfully added to inventory and cart!");
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 
 }

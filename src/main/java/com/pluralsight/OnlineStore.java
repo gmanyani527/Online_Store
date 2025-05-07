@@ -10,7 +10,7 @@ import java.util.*;
 public class OnlineStore {
     private static ArrayList<Product> products = new ArrayList<>();
     private static final String FILE_NAME = "products.csv";
-
+    private static ArrayList<Product> cart = new ArrayList<>();
 
     public static void main(String[] args) {
 
@@ -58,14 +58,17 @@ public class OnlineStore {
 
                     break;
                 case 2:// Show Checked Out Books
-                    stillDeciding = true;
                     loadProduct(FILE_NAME);
+                    stillDeciding = true;
 
                     while (stillDeciding) {
-                        for (Product product : products) {
-                            //   if (product.isCheckedOut()) {
-                            System.out.println(product);
-                            //  }
+                        System.out.println("Items currently in your cart");
+                        if (cart.isEmpty()) {
+                            System.out.println("Your cart is empty");
+                        } else {
+                            for (Product item : cart) {
+                                System.out.println(item);
+                            }
                         }
                         System.out.println();
                         System.out.println("Would you like to add to cart? \n (Select C or X)");
@@ -74,27 +77,32 @@ public class OnlineStore {
                         if (input6.equalsIgnoreCase("x")) {
                             stillDeciding = false;
                         } else if (input6.equalsIgnoreCase("c")) {
-                            System.out.println("Enter product ID to be added to the cart:");
+                            System.out.println("Enter the product ID you'd like to add to cart:");
                             String input7 = scan.nextLine();
 
 
-                        boolean found = false;
-                        for (Product product : products) {
-                            if (product.getId().equalsIgnoreCase(input7)) {
-                                System.out.println("Product found and added to cart!");
-                                // You can write this to a cart.csv file if needed
-                                found = true;
-                                break;
+                            boolean found = false;
+                            for (Product product : products) {
+                                if (product.getId().equalsIgnoreCase(input7)) {
+                                    cart.add(product);
+                                    System.out.println("Product found and added to cart!");
+                                    // You can write this to a cart.csv file if needed
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                System.out.println("Product ID not found in inventory.");
+                            }
+
+
+                        } else{
+                                System.out.println("Invalid input. Please select C or X.");
                             }
                         }
 
-                        if (!found) {
-                            System.out.println("Product ID not found in inventory.");
-                        }
-                    } else {
-                    System.out.println("Invalid input. Please select C or X.");
-                }
-                    }
+
+
                     System.out.println();
                     System.out.println("You have returned to the homepage! ");
 
@@ -161,9 +169,9 @@ public class OnlineStore {
             System.out.println(inputPrice);
             // Create and store transaction
             boolean found = false;
-            for (Product product : products) {
-                if (inputID.equalsIgnoreCase(product.getId())) {
-                    System.out.println("This product already exists in inventory. Not adding again.");
+            for (Product item : cart) {
+                if (item.getId().equalsIgnoreCase(inputID)) {
+                    System.out.println("This product is already in your cart.");
                     return;
                 }
             }
@@ -172,6 +180,7 @@ public class OnlineStore {
                 Product product = new Product(inputID, inputName, inputPrice );
                 products.add(product);
 
+                cart.add(product);
                 bufferedWriter.write(product.toString());
                 bufferedWriter.newLine();
                 System.out.println("Product successfully added to inventory and cart!");

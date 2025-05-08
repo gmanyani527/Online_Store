@@ -60,15 +60,17 @@ public class OnlineStore {
                 case 2:// Show Checked Out Books
                     loadProduct(FILE_NAME);
                     stillDeciding = true;
-
                     while (stillDeciding) {
                         System.out.println("Items currently in your cart");
+                        double total_salesAmount = 0;
                         if (cart.isEmpty()) {
                             System.out.println("Your cart is empty");
                         } else {
                             for (Product item : cart) {
                                 System.out.println(item);
+                                total_salesAmount += item.getPrice();
                             }
+                            System.out.printf("Total: $%.2f%n", total_salesAmount);
                         }
                         System.out.println();
                         System.out.println("Would you like to add to cart? \n (Select C or X)");
@@ -85,8 +87,17 @@ public class OnlineStore {
                             for (Product product : products) {
                                 if (product.getId().equalsIgnoreCase(input7)) {
                                     cart.add(product);
+
                                     System.out.println("Product found and added to cart!");
                                     // You can write this to a cart.csv file if needed
+                                    System.out.println("Updated Cart:");
+
+                                    double updatedTotal = 0;
+                                    for (Product item : cart) {
+                                        System.out.println(item);
+                                        updatedTotal += item.getPrice();
+                                    }
+                                    System.out.printf("New total: $%.2f%n", updatedTotal);
                                     found = true;
                                     break;
                                 }
@@ -108,8 +119,9 @@ public class OnlineStore {
 
                     break;
 
-
-                case 3: // Exit
+                case 3:
+                    
+                case 4: // Exit
                     System.out.println();
                     System.out.println("See ya next Time!");
                     on = false;

@@ -29,7 +29,7 @@ public class OnlineStore {
 
         while (on) {
             System.out.println();
-            System.out.println("1. Show Products \n2. Show Cart \n3. Exit \n(Enter number selection)");
+            System.out.println("1. Show Products \n2. Show Cart \n3. Checkout \n4. Exit \n(Enter number selection)");
 
 
             int userInput = scan.nextInt();
@@ -135,15 +135,30 @@ public class OnlineStore {
                                 validPayment = true;
                             }else {
                                 System.out.println(" Insufficient Payment. Please enter at least $" + totalAmount);
+                                validPayment = false;
                             }
                         }catch (NumberFormatException e){
                             System.out.println("Invalid Input. Please enter a valid number. ");
+                            break;
+                        }
+                        if(validPayment) {
+                            double change = paymentAmount - totalAmount;
+                            System.out.println("\n===== 🧾 SALES RECEIPT =====");
+                            for (Product item : cart) {
+                                System.out.println(item);
+                            }
+                            System.out.printf("Total: $%.2f%n", totalAmount);
+                            System.out.printf("Paid: $%.2f%n", paymentAmount);
+                            System.out.printf("Change Given: $%.2f%n", change);
+                            System.out.println("============================");
+
+                            // Clear cart
+                            cart.clear();
+                            System.out.println("✅ Thank you for your purchase! Returning to home...\n");
                         }
 
-                        double change = paymentAmount - totalAmount;
-                        System.out.println();
                     }
-
+                    break;
                 case 4: // Exit
                     System.out.println();
                     System.out.println("See ya next Time!");
@@ -186,42 +201,49 @@ public class OnlineStore {
 
     private static void addToCart() {
         Scanner scanner = new Scanner(System.in);
-        boolean rightAnswer = true;
-        try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("products.csv", true));
-            // Collect date, time, description, vendor, and amount from user
-            System.out.println("Enter the product Id:  ");
-            String inputID = scanner.nextLine();
-            System.out.println(inputID);
 
-            System.out.println("Enter the product name: ");
-            String inputName = scanner.nextLine();
-            System.out.println(inputName);
+        System.out.println("Enter the product ID you want to add to cart:");
+        String inputID = scanner.nextLine();
 
-            System.out.println("Enter the price of the product: ");
-            double inputPrice = scanner.nextDouble();
-            scanner.nextLine();
-            System.out.println(inputPrice);
-            // Create and store transaction
-            boolean found = false;
-            for (Product item : cart) {
-                if (item.getId().equalsIgnoreCase(inputID)) {
-                    System.out.println("This product is already in your cart.");
+        boolean foundInInventory = false;
+
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split("\\|");
+                if (parts.length != 3) continue;
+
+                String id = parts[0];
+                String name = parts[1];
+                double price = Double.parseDouble(parts[2]);
+
+                if (id.equalsIgnoreCase(inputID)) {
+                    foundInInventory = true;
+
+                    // Check if already in cart
+                    for (Product item : cart) {
+                        if (item.getId().equalsIgnoreCase(id)) {
+                            System.out.println("This product is already in your cart.");
+                            return;
+                        }
+                    }
+
+                    // Add to cart
+                    Product product = new Product(id, name, price);
+                    cart.add(product);
+                    System.out.println("Product added to cart:");
+                    System.out.println(product);
                     return;
                 }
             }
-            if (!found) {
-                System.out.println("This item is not in our inventory");
-                Product product = new Product(inputID, inputName, inputPrice );
-                products.add(product);
 
-                cart.add(product);
-                bufferedWriter.write(product.toString());
-                bufferedWriter.newLine();
-                System.out.println("Product successfully added to inventory and cart!");
+            if (!foundInInventory) {
+                System.out.println("Product not found in inventory.");
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -120,7 +120,30 @@ public class OnlineStore {
                     break;
 
                 case 3:
-                    
+                    if(cart.isEmpty()){
+                    System.out.println("Your cart is empty. Nothing to checkout");
+                    break;
+                }
+                    double totalAmount = showCartSummary();
+                    boolean validPayment = false;
+                    double paymentAmount = 0;
+                    while(!validPayment){
+                        System.out.println(" Please enter your cash amount: ");
+                        try{
+                            paymentAmount = Double.parseDouble(scan.nextLine());
+                            if(paymentAmount >= totalAmount){
+                                validPayment = true;
+                            }else {
+                                System.out.println(" Insufficient Payment. Please enter at least $" + totalAmount);
+                            }
+                        }catch (NumberFormatException e){
+                            System.out.println("Invalid Input. Please enter a valid number. ");
+                        }
+
+                        double change = paymentAmount - totalAmount;
+                        System.out.println();
+                    }
+
                 case 4: // Exit
                     System.out.println();
                     System.out.println("See ya next Time!");
@@ -201,6 +224,20 @@ public class OnlineStore {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+    private static double showCartSummary() {
+        double total = 0;
+        if (cart.isEmpty()) {
+            System.out.println("🛒 Your cart is empty.");
+        } else {
+            System.out.println("🛒 Your cart items:");
+            for (Product item : cart) {
+                System.out.println(item);
+                total += item.getPrice();
+            }
+            System.out.printf("🧾 Total amount due: $%.2f%n", total);
+        }
+        return total;
     }
 
 }

@@ -43,7 +43,7 @@ Instructions on how to set up and run the project using IntelliJ IDEA.
 
 ## Demo
 
-![OnlineStoreDemo.gif](OnlineStoreScreenshot/OnlineStoreDemo.gif)
+![OnlineStoreDemo.gif](Online_Store.gif)
 
 ## Future Works
 
